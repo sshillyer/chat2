@@ -25,49 +25,86 @@ class App extends React.Component<AppProps, AppState> {
     this.setState = this.setState.bind(this);
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
     this.handleMessageSubmit = this.handleMessageSubmit.bind(this);
-    this.messageReceive = this.messageReceive.bind(this);
+    this.handleMessageReceive = this.handleMessageReceive.bind(this);
+    this.initializeChatHistory = this.initializeChatHistory.bind(this);
+    this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
+    this.handleLoginFailure = this.handleLoginFailure.bind(this);
+    this.onUnload = this.onUnload.bind(this);
   }
 
   componentDidMount(this: App) {
+    window.addEventListener('beforeunload', this.onUnload);
+
     // Setup listeners to listen for messages emitted by the socket.io on server side
     this.socket.on('connect', function(data: string) {
       return; // Don't think I need this stub :)
     });
 
-    // this.socket.on('message:received', this.messageReceive);
-    this.socket.on('chat message', this.messageReceive);
+    this.socket.on('message:received', this.handleMessageReceive);
+    this.socket.on('history:success', this.initializeChatHistory);
+    this.socket.on('login:success', this.handleLoginSuccess);
+    this.socket.on('login:failure', this.handleLoginFailure);
   }
 
-  // Client-side listener helpers
-  messageReceive(this: App, msg: string) {
-      let messages: string[] = this.state.messageHistory.slice();
-      messages.push(msg);
-      this.setState({messageHistory: messages});
-      return;
+    // These are used to bind an event listener that emits a message upon disconnecting
+    onUnload(this: App, e: any) {
+        alert('About to unload. Click ok??');
+        this.socket.emit('user:disconnect', this.state.username);
+    }
+
+    componentWillUnmount(this: App) {
+        window.removeEventListener('beforeunload', this.onUnload);
+    }
+
+  /*******************************
+  Client-side listener helpers
+  *******************************/
+  handleMessageReceive(this: App, msg: string) {
+    let messages: string[] = this.state.messageHistory.slice();
+    messages.push(msg);
+    this.setState({messageHistory: messages});
+    return;
   }
 
+  initializeChatHistory(this: App, messages: any) {
+    this.setState({messageHistory: messages});
+    return;
+  }
 
+  handleLoginSuccess(this: App, username: string) {
+    this.setState({isLoggedIn: true, username: username});
+    this.socket.emit('retrieve:history');
+  }
 
-  // Client-side Emitters (passed down to components as props)
-  handleLoginSubmit(e: any, v: string): void {
-      e.preventDefault();
-      // TODO: Validate the input before actually logging user in
-      this.socket.emit('user login', v);
-      this.setState({isLoggedIn: true, username: v});
-      e.value = '';
+  handleLoginFailure(this: App, msg: string) {
+    alert('Username invalid - must contain at least 1 non-whitespace character');
+  }
+
+  /*************************************************************
+  Client-side Emitters (passed down to components as props)
+  **************************************************************/
+  handleLoginSubmit(e: any, username: string): void {
+    e.preventDefault();
+    // Note that the server validates the input as well as backup using same conditional
+    if (username != null && /\S/.test(username)) {
+      this.socket.emit('user:login', username);
+    } else {
+      alert('Username was invalid - must contain at least one non-whitespace character');
+    }
+    e.value = '';
   }
 
   handleMessageSubmit(e: any, m: string, uname: string): void {
     e.preventDefault();
     let msgJSONstring: string = '{"username":"' + uname + '","message":"' + m + '"}';
-    this.socket.emit('chat message', msgJSONstring);
-    let messages: string[] = this.state.messageHistory.slice();
-    messages.push(m);
-    this.setState({messageHistory: messages});
+    this.socket.emit('message:send', msgJSONstring);
     e.value = '';
-    alert(this.state.messageHistory);
+
   }
   
+
+
+
   render(this: App) {
     if (this.state.isLoggedIn) {
       return (

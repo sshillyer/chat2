@@ -8,6 +8,7 @@ class ChatHistory extends React.Component<ChatHistoryProps, {}> {
     constructor(props: any) {
         super(props);
     }
+
     render() {
         return (
         <div>
