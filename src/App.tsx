@@ -30,31 +30,31 @@ class App extends React.Component<AppProps, AppState> {
     this.handleLoginSuccess = this.handleLoginSuccess.bind(this);
     this.handleLoginFailure = this.handleLoginFailure.bind(this);
     this.onUnload = this.onUnload.bind(this);
+
   }
 
   componentDidMount(this: App) {
     window.addEventListener('beforeunload', this.onUnload);
 
-    // Setup listeners to listen for messages emitted by the socket.io on server side
-    this.socket.on('connect', function(data: string) {
-      return; // Don't think I need this stub :)
-    });
-
     this.socket.on('message:received', this.handleMessageReceive);
     this.socket.on('history:success', this.initializeChatHistory);
     this.socket.on('login:success', this.handleLoginSuccess);
     this.socket.on('login:failure', this.handleLoginFailure);
+
+
   }
 
-    // These are used to bind an event listener that emits a message upon disconnecting
-    onUnload(this: App, e: any) {
-        alert('About to unload. Click ok??');
-        this.socket.emit('user:disconnect', this.state.username);
-    }
+  // These are used to bind an event listener that emits a message upon disconnecting
+  onUnload(this: App, e: any) {
+      this.socket.emit('user:disconnect', this.state.username);
+  }
 
-    componentWillUnmount(this: App) {
-        window.removeEventListener('beforeunload', this.onUnload);
-    }
+  // Unbind the event listener (Future-proofing in case want to remove )
+  componentWillUnmount(this: App) {
+      window.removeEventListener('beforeunload', this.onUnload);
+  }
+
+
 
   /*******************************
   Client-side listener helpers
@@ -77,7 +77,8 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   handleLoginFailure(this: App, msg: string) {
-    alert('Username invalid - must contain at least 1 non-whitespace character');
+    // This prints if the server responds with the 'login:failure' event
+    alert('Username invalid - must contain at least one non-whitespace character');
   }
 
   /*************************************************************
@@ -89,7 +90,7 @@ class App extends React.Component<AppProps, AppState> {
     if (username != null && /\S/.test(username)) {
       this.socket.emit('user:login', username);
     } else {
-      alert('Username was invalid - must contain at least one non-whitespace character');
+      alert('Username invalid - must contain at least one non-whitespace character');
     }
     e.value = '';
   }

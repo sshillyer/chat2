@@ -25,8 +25,8 @@ class MessageEntry extends React.Component<MessageEntryProps, MessageEntryState>
         return (
         <div>
             <form 
-                name="message-form" 
                 id="messageForm"
+                name="message-form"
                 onSubmit={e => {
                     this.props.handleMessageSubmit(e, this.state.value, this.props.username);
                     this.setState({value: ''});

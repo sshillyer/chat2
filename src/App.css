@@ -30,24 +30,23 @@ form button {
   right: 0;
 }
 
-
-
 #messageForm { 
-  position: fixed; 
-  bottom: 0 
+  position: fixed;
+  bottom: 0;
+  padding-top: .7em;
 }
 
 #messages { 
   list-style-type: none; 
   margin: 0; 
   padding: 0 0 25px 0; 
-  position: fixed; 
-  top: 4em; 
+  /*position: relative;
+  bottom: .75em;*/
 }
 
 #messages li { 
   padding: 5px 10px; 
-  }
+}
 
 #messages li:nth-child(odd) { 
   background: #eee; 
@@ -58,3 +57,8 @@ form button {
   padding: 1em 0 .5em 0;
   text-align: center;
 }
+
+/*#history-div {
+    overflow-y: scroll;
+    overflow-x:hidden;
+}*/

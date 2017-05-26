@@ -7,18 +7,19 @@ interface ChatHistoryProps {
 class ChatHistory extends React.Component<ChatHistoryProps, {}> {
     constructor(props: any) {
         super(props);
+
     }
 
     render() {
         return (
-        <div>
+        <div id="history-div">
             <ul id="messages">
                 {this.props.messages.map(function(messageValue: string){
                     return <li>{messageValue}</li>;
                 })};
             </ul>
-
         </div>
+
         );
     }
 }
