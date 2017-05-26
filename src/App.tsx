@@ -40,8 +40,6 @@ class App extends React.Component<AppProps, AppState> {
     this.socket.on('history:success', this.initializeChatHistory);
     this.socket.on('login:success', this.handleLoginSuccess);
     this.socket.on('login:failure', this.handleLoginFailure);
-
-
   }
 
   // These are used to bind an event listener that emits a message upon disconnecting
@@ -53,8 +51,6 @@ class App extends React.Component<AppProps, AppState> {
   componentWillUnmount(this: App) {
       window.removeEventListener('beforeunload', this.onUnload);
   }
-
-
 
   /*******************************
   Client-side listener helpers
@@ -103,9 +99,6 @@ class App extends React.Component<AppProps, AppState> {
 
   }
   
-
-
-
   render(this: App) {
     if (this.state.isLoggedIn) {
       return (
