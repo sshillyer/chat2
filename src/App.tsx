@@ -1,15 +1,18 @@
 import * as React from 'react';
 import UserLogin from './UserLogin';
+import ChatInterface from './ChatInterface';
 import * as io from 'socket.io-client';
 import './App.css';
 
 interface AppProps {
-  // isLoggedIn: boolean;
+  // None
 }
 
 interface AppState {
   data: {};
+  username: string;
   isLoggedIn: boolean;
+  messageHistory: string[];
 }
 
 class App extends React.Component<AppProps, AppState> {
@@ -18,7 +21,7 @@ class App extends React.Component<AppProps, AppState> {
   constructor() {
     super();
     this.socket = io('http://localhost:8080');
-    this.state = {data: {}, isLoggedIn: false };
+    this.state = {data: {}, username: '', isLoggedIn: false, messageHistory: ['Nothing here'] };
     this.setState = this.setState.bind(this);
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
   }
@@ -26,17 +29,19 @@ class App extends React.Component<AppProps, AppState> {
   componentDidMount() {
     // let socket = io('http://localhost:8080');
     this.socket.on('connect', function(this: App, data: string) {
-      alert('Connected!?');
+      return; // Don't think I need this stub :)
     });
 
     this.socket.on('chat message', function(msg: string) {
-      alert(msg);
+      // alert(msg);
+      return;
     });
   }
 
   handleLoginSubmit(e: any, v: string): void {
-      alert('Username submitted: ' + v);
       e.preventDefault();
+      // TODO: Validate the input before actually logging user in
+      this.socket.emit('user login', v);
       this.setState({isLoggedIn: true});
   }
   
@@ -45,7 +50,7 @@ class App extends React.Component<AppProps, AppState> {
       return (
       <div className="App">
         <script src="/socket.io/socket.io.js" />
-        <h1 />Logged in!
+        <ChatInterface username={this.state.username} messages={this.state.messageHistory} />
       </div>
       );
     } else {
